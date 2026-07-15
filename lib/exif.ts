@@ -23,26 +23,23 @@ export const emptyExifData = (): ExifData => ({
 });
 
 function formatShutterSpeed(exposureTime: number): string {
-  if (!exposureTime || exposureTime <= 0) return "";
+  if (!Number.isFinite(exposureTime) || exposureTime <= 0) return "";
   if (exposureTime >= 1) {
     return `${exposureTime % 1 === 0 ? exposureTime : exposureTime.toFixed(1)}s`;
   }
   const denominator = Math.round(1 / exposureTime);
+  if (!Number.isFinite(denominator) || denominator <= 0) return "";
   return `1/${denominator}s`;
 }
 
 function formatAperture(fNumber: number): string {
-  if (!fNumber || fNumber <= 0) return "";
+  if (!Number.isFinite(fNumber) || fNumber <= 0) return "";
   return `f/${fNumber.toFixed(1)}`;
 }
 
-function formatFocalLength(
-  focalLength?: number,
-  focalLength35mm?: number,
-): string {
-  const value = focalLength35mm ?? focalLength;
-  if (!value || value <= 0) return "";
-  return `${Math.round(value)}mm`;
+function formatFocalLengthMm(mm: number): string {
+  if (!Number.isFinite(mm) || mm <= 0) return "";
+  return `${Math.round(mm)}mm`;
 }
 
 function formatDate(date: Date | string | undefined): string {
@@ -55,48 +52,135 @@ function formatDate(date: Date | string | undefined): string {
   return `${y}.${m}.${day}`;
 }
 
-type RawExif = {
-  Make?: string;
-  Model?: string;
-  LensModel?: string;
-  FocalLength?: number;
-  FocalLengthIn35mmFormat?: number;
-  FNumber?: number;
-  ExposureTime?: number;
-  ISO?: number;
-  DateTimeOriginal?: Date | string;
-};
+type RawExif = Record<string, unknown>;
 
+/** Lightroom PNG/XMP often stores rationals as "50/1", [50,1], or {numerator,denominator}. */
+function toNumber(value: unknown): number {
+  if (value == null || value === "") return NaN;
+  if (typeof value === "number") return Number.isFinite(value) ? value : NaN;
+  if (typeof value === "boolean") return NaN;
+
+  if (typeof value === "string") {
+    const cleaned = value.trim().replace(/,/g, "").replace(/mm$/i, "").trim();
+    if (!cleaned) return NaN;
+    if (cleaned.includes("/")) {
+      const [a, b] = cleaned.split("/").map((s) => Number(s.trim()));
+      if (Number.isFinite(a) && Number.isFinite(b) && b !== 0) return a / b;
+      return NaN;
+    }
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  if (Array.isArray(value)) {
+    if (value.length >= 2) {
+      const a = toNumber(value[0]);
+      const b = toNumber(value[1]);
+      if (Number.isFinite(a) && Number.isFinite(b) && b !== 0) return a / b;
+    }
+    return toNumber(value[0]);
+  }
+
+  if (typeof value === "object") {
+    const obj = value as Record<string, unknown>;
+    if ("numerator" in obj && "denominator" in obj) {
+      const a = toNumber(obj.numerator);
+      const b = toNumber(obj.denominator);
+      if (Number.isFinite(a) && Number.isFinite(b) && b !== 0) return a / b;
+    }
+    if ("n" in obj && "d" in obj) {
+      const a = toNumber(obj.n);
+      const b = toNumber(obj.d);
+      if (Number.isFinite(a) && Number.isFinite(b) && b !== 0) return a / b;
+    }
+    // Typed array / array-like
+    if ("0" in obj && "1" in obj) {
+      const a = toNumber(obj["0"]);
+      const b = toNumber(obj["1"]);
+      if (Number.isFinite(a) && Number.isFinite(b) && b !== 0) return a / b;
+    }
+    if ("0" in obj) return toNumber(obj["0"]);
+  }
+
+  return NaN;
+}
+
+function pickString(...values: unknown[]): string {
+  for (const v of values) {
+    if (typeof v === "string" && v.trim()) return v.trim();
+  }
+  return "";
+}
+
+function pickPositiveNumber(...values: unknown[]): number {
+  for (const v of values) {
+    const n = toNumber(v);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  return NaN;
+}
+
+function formatIso(raw: RawExif): string {
+  const iso = pickPositiveNumber(
+    raw.ISO,
+    raw.PhotographicSensitivity,
+    raw.ISOSpeedRatings,
+  );
+  return Number.isFinite(iso) ? `ISO${Math.round(iso)}` : "";
+}
+
+function formatDateFromRaw(raw: RawExif): string {
+  return formatDate(
+    (raw.DateTimeOriginal ??
+      raw.CreateDate ??
+      raw.DateCreated ??
+      raw.DateTime) as Date | string | undefined,
+  );
+}
+
+/**
+ * Parse camera EXIF from JPEG / PNG / HEIC.
+ * PNG stores EXIF in an eXIf chunk (and sometimes only in XMP) — read the
+ * whole file so chunked scanning cannot miss a late eXIf segment.
+ */
 export async function parseExifFromFile(file: File): Promise<ExifData> {
   try {
-    const raw = (await exifr.parse(file, {
-      pick: [
-        "Make",
-        "Model",
-        "LensModel",
-        "FocalLength",
-        "FocalLengthIn35mmFormat",
-        "FNumber",
-        "ExposureTime",
-        "ISO",
-        "DateTimeOriginal",
-      ],
+    const buffer = await file.arrayBuffer();
+    const raw = (await exifr.parse(buffer, {
+      tiff: true,
+      xmp: true,
+      icc: false,
+      iptc: false,
+      jfif: false,
+      ihdr: false,
+      mergeOutput: true,
+      translateKeys: true,
+      translateValues: true,
+      reviveValues: true,
+      sanitize: true,
     })) as RawExif | null;
 
     if (!raw) return emptyExifData();
 
+    // Prefer 35mm-equivalent when present (common in Lightroom exports)
+    const focal = pickPositiveNumber(
+      raw.FocalLengthIn35mmFormat,
+      raw.FocalLengthIn35mmFilm,
+      raw.FocalLength,
+    );
+    // FNumber only — ApertureValue is APEX, not f-stop
+    const fNumber = pickPositiveNumber(raw.FNumber);
+    const exposure = pickPositiveNumber(raw.ExposureTime);
+
     return {
-      make: raw.Make?.trim() ?? "",
-      model: raw.Model?.trim() ?? "",
-      lens: raw.LensModel?.trim() ?? "",
-      focalLength: formatFocalLength(
-        raw.FocalLength,
-        raw.FocalLengthIn35mmFormat,
-      ),
-      aperture: formatAperture(raw.FNumber ?? 0),
-      shutterSpeed: formatShutterSpeed(raw.ExposureTime ?? 0),
-      iso: raw.ISO ? `ISO${raw.ISO}` : "",
-      date: formatDate(raw.DateTimeOriginal),
+      make: pickString(raw.Make),
+      model: pickString(raw.Model),
+      lens: pickString(raw.LensModel, raw.Lens),
+      focalLength: formatFocalLengthMm(focal),
+      aperture: formatAperture(fNumber),
+      shutterSpeed: formatShutterSpeed(exposure),
+      iso: formatIso(raw),
+      date: formatDateFromRaw(raw),
     };
   } catch {
     return emptyExifData();

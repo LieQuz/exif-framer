@@ -41,7 +41,8 @@ export async function createBatchItem(file: File): Promise<BatchItem> {
   const image = await withTimeout(loadImageFromFile(file), 30000);
   let exif = emptyExifData();
   try {
-    exif = await withTimeout(parseExifFromFile(file), 2000);
+    // PNG eXIf / XMP can take longer than JPEG APP1 on large files
+    exif = await withTimeout(parseExifFromFile(file), 12000);
   } catch {
     exif = emptyExifData();
   }
