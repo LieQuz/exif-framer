@@ -103,7 +103,6 @@ export async function parseExifFromFile(file: File): Promise<ExifData> {
   }
 }
 
-/** Bold camera name for the "Shot on" line, e.g. "Canon EOS R5" */
 export function getCameraDisplayName(data: ExifData): string {
   const make = data.make.trim();
   const model = data.model.trim();
@@ -118,17 +117,73 @@ export function hasExifData(data: ExifData): boolean {
   return Object.values(data).some((value) => value.trim().length > 0);
 }
 
-export function loadImageFromFile(file: File): Promise<HTMLImageElement> {
+/** iOS Safari canvas pixel budget is roughly 16–67M; keep margin for the frame. */
+const MAX_EDGE = 4096;
+
+function loadHtmlImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
     const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("Failed to load image"));
+    img.onload = () => {
+      if (!img.naturalWidth) {
+        reject(new Error("empty image"));
+        return;
+      }
+      resolve(img);
     };
+    img.onerror = () => reject(new Error("img error"));
     img.src = url;
   });
+}
+
+/**
+ * Decode → draw to canvas → re-encode JPEG.
+ * Keeps pixels in memory for Safari and caps huge phone photos.
+ */
+async function bakeForCanvas(img: HTMLImageElement): Promise<HTMLImageElement> {
+  const srcW = img.naturalWidth;
+  const srcH = img.naturalHeight;
+  const edge = Math.max(srcW, srcH);
+  const scale = edge > MAX_EDGE ? MAX_EDGE / edge : 1;
+  const w = Math.max(1, Math.round(srcW * scale));
+  const h = Math.max(1, Math.round(srcH * scale));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("no 2d context");
+  ctx.drawImage(img, 0, 0, w, h);
+
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error("toBlob failed"))),
+      "image/jpeg",
+      0.92,
+    );
+  });
+
+  const bakedUrl = URL.createObjectURL(blob);
+  try {
+    return await loadHtmlImage(bakedUrl);
+  } catch (e) {
+    URL.revokeObjectURL(bakedUrl);
+    throw e;
+  }
+}
+
+export async function loadImageFromFile(file: File): Promise<HTMLImageElement> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await loadHtmlImage(url);
+    try {
+      await img.decode?.();
+    } catch {
+      // decode() unsupported or failed — onload already succeeded
+    }
+    return await bakeForCanvas(img);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 }
 
 export function revokeImageUrl(image: HTMLImageElement) {

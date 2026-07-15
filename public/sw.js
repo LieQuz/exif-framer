@@ -1,5 +1,5 @@
 /* EXIF Framer PWA — never cache HTML navigations (avoids reload loops with Next.js) */
-const CACHE = "exif-framer-v2";
+const CACHE = "exif-framer-v5";
 const PRECACHE = ["/icon.svg", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {

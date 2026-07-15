@@ -59,11 +59,13 @@
   "downloadCurrent": "この写真をダウンロード",
   "downloadBatch": "すべて ZIP でダウンロード",
   "properties": "プロパティ",
+  "edit": "編集",
   "batchList": "選択中の写真",
   "batchAddMore": "追加",
   "batchRemove": "削除",
   "batchExporting": "書き出し中",
   "changeImage": "クリアしてやり直す",
   "noExif": "EXIF情報が見つかりませんでした。手動で入力できます。",
+  "uploadFailed": "写真を読み込めませんでした。別の形式（JPEG / PNG）で試してください。",
   "loading": "読み込み中…"
 }

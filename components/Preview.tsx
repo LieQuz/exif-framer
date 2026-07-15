@@ -50,7 +50,7 @@ export function Preview({
   if (!canvas) return null;
 
   return (
-    <div className="fade-in flex h-full w-full items-center justify-center px-6 py-6 sm:px-10 sm:py-8 md:px-14 md:py-10">
+    <div className="fade-in flex h-full w-full items-center justify-center px-4 py-4 sm:px-8 sm:py-6 md:px-14 md:py-10">
       <canvas
         ref={displayRef}
         className="max-h-full max-w-full bg-transparent object-contain"
@@ -58,7 +58,7 @@ export function Preview({
           width: "auto",
           height: "auto",
           filter: previewShadow
-            ? "drop-shadow(0 20px 40px rgba(0, 0, 0, 0.22))"
+            ? "drop-shadow(0 12px 28px rgba(0, 0, 0, 0.2))"
             : "none",
         }}
       />

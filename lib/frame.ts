@@ -381,7 +381,6 @@ export async function renderPolaroidFrame(
   exif: ExifData,
   options: FrameOptions = {},
 ): Promise<HTMLCanvasElement> {
-  const scale = options.scale ?? Math.min(window.devicePixelRatio || 1, 2);
   const shotOnPrefix = options.shotOnPrefix ?? "Shot on";
   const textScale = clamp(
     options.textScale ?? DEFAULT_TEXT_SCALE,
@@ -467,6 +466,15 @@ export async function renderPolaroidFrame(
 
   const canvasW = imgW + marginX * 2;
   const canvasH = imgH + marginTop + marginBottom;
+
+  // Cap DPR / size — iPhone Safari rejects oversized canvases
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let scale = options.scale ?? dpr;
+  const maxCanvasEdge = 4096;
+  const rawEdge = Math.max(canvasW, canvasH) * scale;
+  if (rawEdge > maxCanvasEdge) {
+    scale = maxCanvasEdge / Math.max(canvasW, canvasH);
+  }
 
   const canvas = document.createElement("canvas");
   canvas.width = canvasW * scale;

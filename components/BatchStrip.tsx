@@ -1,6 +1,7 @@
 "use client";
 
 import type { BatchItem } from "@/lib/batch";
+import { snapshotFiles } from "@/lib/files";
 import { useI18n } from "@/lib/i18n/context";
 
 type BatchStripProps = {
@@ -8,7 +9,7 @@ type BatchStripProps = {
   activeId: string;
   onSelect: (id: string) => void;
   onRemove: (id: string) => void;
-  onAddMore: () => void;
+  onAddFiles: (files: File[]) => void;
 };
 
 export function BatchStrip({
@@ -16,22 +17,40 @@ export function BatchStrip({
   activeId,
   onSelect,
   onRemove,
-  onAddMore,
+  onAddFiles,
 }: BatchStripProps) {
   const { t } = useI18n();
 
   return (
-    <div className="flex shrink-0 items-center gap-3 border-t border-stone-200/80 bg-[#F3F0EB] px-5 py-3 sm:px-8">
-      <button
-        type="button"
-        onClick={onAddMore}
-        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md border border-dashed border-stone-300 text-lg text-stone-400 transition-colors hover:border-stone-400 hover:text-stone-600"
-        aria-label={t("batchAddMore")}
-        title={t("batchAddMore")}
-      >
-        +
-      </button>
-      <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto">
+    <div className="flex shrink-0 items-center gap-2 border-t border-stone-200/80 bg-[#F3F0EB] px-3 py-2 sm:gap-3 sm:px-6 sm:py-3">
+      <div className="relative h-11 w-11 shrink-0 sm:h-14 sm:w-14">
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          aria-label={t("batchAddMore")}
+          title={t("batchAddMore")}
+          onChange={(e) => {
+            const list = e.target.files;
+            void (async () => {
+              if (!list || list.length === 0) return;
+              try {
+                const copies = await snapshotFiles(list);
+                e.target.value = "";
+                if (copies.length) onAddFiles(copies);
+              } catch {
+                e.target.value = "";
+              }
+            })();
+          }}
+          className="absolute inset-0 z-10 m-0 h-full w-full cursor-pointer opacity-0"
+          style={{ fontSize: 16 }}
+        />
+        <div className="pointer-events-none flex h-full w-full items-center justify-center rounded-md border border-dashed border-stone-300 text-lg text-stone-400">
+          +
+        </div>
+      </div>
+      <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item) => {
           const active = item.id === activeId;
           return (
@@ -39,7 +58,7 @@ export function BatchStrip({
               <button
                 type="button"
                 onClick={() => onSelect(item.id)}
-                className={`block h-14 w-14 overflow-hidden rounded-md border-2 transition-colors ${
+                className={`block h-11 w-11 overflow-hidden rounded-md border-2 transition-colors sm:h-14 sm:w-14 ${
                   active
                     ? "border-stone-800"
                     : "border-transparent opacity-70 hover:opacity-100"

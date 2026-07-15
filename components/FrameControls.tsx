@@ -33,7 +33,7 @@ const sliderClass =
   "h-1.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-800 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-stone-800";
 
 const segmentBtn = (active: boolean) =>
-  `rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+  `rounded-full px-2.5 py-1.5 text-[11px] font-medium transition-colors sm:px-3 sm:text-xs ${
     active
       ? "bg-stone-800 text-white"
       : "text-stone-500 hover:text-stone-800"
@@ -78,7 +78,7 @@ export function FrameControls({ settings, onChange }: FrameControlsProps) {
       {/* Template */}
       <div>
         <SectionLabel>{t("template")}</SectionLabel>
-        <div className="flex flex-wrap gap-1.5 rounded-full border border-stone-200 bg-white p-0.5">
+        <div className="flex flex-wrap gap-1 rounded-full border border-stone-200 bg-white p-0.5">
           {TEMPLATES.map((template) => (
             <button
               key={template}

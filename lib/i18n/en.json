@@ -59,11 +59,13 @@
   "downloadCurrent": "Download this photo",
   "downloadBatch": "Download all as ZIP",
   "properties": "Properties",
+  "edit": "Edit",
   "batchList": "Selected photos",
   "batchAddMore": "Add more",
   "batchRemove": "Remove",
   "batchExporting": "Exporting",
   "changeImage": "Clear and start over",
   "noExif": "No EXIF data found. You can enter details manually.",
+  "uploadFailed": "Couldn’t load the photo. Try JPEG or PNG.",
   "loading": "Loading…"
 }
