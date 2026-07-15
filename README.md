@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EXIF Framer
 
-## Getting Started
+写真にポラロイド風の EXIF フレームを追加する Web アプリ。画像はすべてブラウザ内で処理され、サーバーにアップロードされません。
 
-First, run the development server:
+## 機能
+
+- ドラッグ＆ドロップまたはクリックで写真を選択（複数枚バッチ対応）
+- EXIF からカメラ・撮影設定を自動読み取り・編集
+- テンプレート（Shot on / ミニマル / フィルム）、色・枠・角丸・影
+- 署名・透かし、文字サイズ・配置
+- PNG / JPEG ダウンロード、複数枚は ZIP
+- 設定と言語をブラウザに記憶
+- PWA（ホーム画面追加・オフライン）
+- 日本語 / 英語 UI 切り替え
+
+## ローカル開発
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000) を開いてください。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ビルド
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Vercel へのデプロイ
 
-To learn more about Next.js, take a look at the following resources:
+1. このリポジトリを GitHub に push
+2. [vercel.com](https://vercel.com) にログイン
+3. **Add New → Project** からリポジトリをインポート
+4. Framework Preset が **Next.js** と自動検出されることを確認
+5. **Deploy** をクリック
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+環境変数や追加設定は不要です。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 技術スタック
 
-## Deploy on Vercel
+- [Next.js](https://nextjs.org/) (App Router)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [exifr](https://github.com/MikeKovarik/exifr) — EXIF 解析
+- Canvas API — フレーム合成
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ライセンス
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
