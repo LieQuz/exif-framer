@@ -2,16 +2,28 @@
 
 import { useI18n } from "@/lib/i18n/context";
 
-export function Header() {
+type HeaderProps = {
+  compact?: boolean;
+};
+
+export function Header({ compact = false }: HeaderProps) {
   const { locale, setLocale, t } = useI18n();
 
   return (
-    <header className="flex items-center justify-between px-6 py-5 md:px-10">
-      <div>
-        <h1 className="text-lg font-medium tracking-tight text-stone-800">
+    <header
+      className={`flex shrink-0 items-center justify-between border-b border-stone-200/80 bg-transparent ${
+        compact ? "px-5 py-2.5 sm:px-6" : "px-6 py-5 md:px-10"
+      }`}
+    >
+      <div className={compact ? "min-w-0" : undefined}>
+        <h1
+          className={`font-medium tracking-tight text-stone-800 ${compact ? "text-sm" : "text-lg"}`}
+        >
           {t("appTitle")}
         </h1>
-        <p className="mt-0.5 text-sm text-stone-500">{t("appSubtitle")}</p>
+        {!compact && (
+          <p className="mt-0.5 text-sm text-stone-500">{t("appSubtitle")}</p>
+        )}
       </div>
       <div className="flex rounded-full border border-stone-200 bg-white p-0.5 text-xs font-medium shadow-sm">
         <button

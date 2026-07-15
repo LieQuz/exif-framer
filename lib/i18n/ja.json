@@ -58,6 +58,7 @@
   "download": "ダウンロード",
   "downloadCurrent": "この写真をダウンロード",
   "downloadBatch": "すべて ZIP でダウンロード",
+  "properties": "プロパティ",
   "batchList": "選択中の写真",
   "batchAddMore": "追加",
   "batchRemove": "削除",

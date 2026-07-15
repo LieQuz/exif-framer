@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -24,13 +25,17 @@ type I18nContextValue = {
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 
-function readInitialLocale(): Locale {
-  if (typeof window === "undefined") return "ja";
-  return loadLocale("ja");
-}
-
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(readInitialLocale);
+  // Always start with the same default on server + client to avoid hydration loops
+  const [locale, setLocaleState] = useState<Locale>("ja");
+
+  useEffect(() => {
+    const stored = loadLocale("ja");
+    if (stored !== "ja") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional client hydration
+      setLocaleState(stored);
+    }
+  }, []);
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);

@@ -41,8 +41,8 @@ export function Preview({
 
   if (isLoading) {
     return (
-      <div className="flex aspect-[4/5] w-full max-w-md items-center justify-center rounded-lg bg-white shadow-xl shadow-stone-200/60">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-stone-600" />
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-300 border-t-stone-700" />
       </div>
     );
   }
@@ -50,13 +50,15 @@ export function Preview({
   if (!canvas) return null;
 
   return (
-    <div className="fade-in w-full max-w-md">
+    <div className="fade-in flex h-full w-full items-center justify-center px-6 py-6 sm:px-10 sm:py-8 md:px-14 md:py-10">
       <canvas
         ref={displayRef}
-        className="h-auto w-full bg-transparent"
+        className="max-h-full max-w-full bg-transparent object-contain"
         style={{
+          width: "auto",
+          height: "auto",
           filter: previewShadow
-            ? "drop-shadow(0 16px 28px rgba(0, 0, 0, 0.18))"
+            ? "drop-shadow(0 20px 40px rgba(0, 0, 0, 0.22))"
             : "none",
         }}
       />

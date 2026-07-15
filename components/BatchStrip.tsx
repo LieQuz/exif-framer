@@ -20,23 +20,18 @@ export function BatchStrip({
 }: BatchStripProps) {
   const { t } = useI18n();
 
-  if (items.length <= 1) return null;
-
   return (
-    <div className="w-full max-w-md space-y-2">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wider text-stone-400">
-          {t("batchList")} ({items.length})
-        </span>
-        <button
-          type="button"
-          onClick={onAddMore}
-          className="text-xs text-stone-500 transition-colors hover:text-stone-800"
-        >
-          {t("batchAddMore")}
-        </button>
-      </div>
-      <div className="flex gap-2 overflow-x-auto pb-1">
+    <div className="flex shrink-0 items-center gap-3 border-t border-stone-200/80 bg-[#F3F0EB] px-5 py-3 sm:px-8">
+      <button
+        type="button"
+        onClick={onAddMore}
+        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md border border-dashed border-stone-300 text-lg text-stone-400 transition-colors hover:border-stone-400 hover:text-stone-600"
+        aria-label={t("batchAddMore")}
+        title={t("batchAddMore")}
+      >
+        +
+      </button>
+      <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto">
         {items.map((item) => {
           const active = item.id === activeId;
           return (
@@ -44,7 +39,7 @@ export function BatchStrip({
               <button
                 type="button"
                 onClick={() => onSelect(item.id)}
-                className={`block h-16 w-16 overflow-hidden rounded-lg border-2 transition-colors ${
+                className={`block h-14 w-14 overflow-hidden rounded-md border-2 transition-colors ${
                   active
                     ? "border-stone-800"
                     : "border-transparent opacity-70 hover:opacity-100"
@@ -69,6 +64,9 @@ export function BatchStrip({
           );
         })}
       </div>
+      <span className="hidden shrink-0 text-xs text-stone-400 sm:inline">
+        {items.length}
+      </span>
     </div>
   );
 }
