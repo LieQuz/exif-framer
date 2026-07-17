@@ -2,7 +2,10 @@ export type FrameColor = "white" | "offwhite" | "black";
 export type TextAlign = "center" | "left" | "right";
 export type ExportFormat = "png" | "jpeg";
 export type FrameTemplate = "shoton" | "minimal" | "film";
-export type AspectPreset = "original" | "square";
+export type AspectPreset = "original" | "square" | "l";
+
+/** Canon L-size print ratio (89×127 mm) */
+export const L_SIZE_ASPECT = { w: 89, h: 127 } as const;
 
 export type FrameSettings = {
   template: FrameTemplate;
@@ -72,4 +75,4 @@ export const FRAME_COLORS: Record<
 };
 
 export const TEMPLATES: FrameTemplate[] = ["shoton", "minimal", "film"];
-export const ASPECT_PRESETS: AspectPreset[] = ["original", "square"];
+export const ASPECT_PRESETS: AspectPreset[] = ["original", "square", "l"];

@@ -3,6 +3,7 @@ import {
   DEFAULT_BORDER_SCALE,
   DEFAULT_TEXT_SCALE,
   FRAME_COLORS,
+  L_SIZE_ASPECT,
   MAX_BORDER_SCALE,
   MAX_TEXT_SCALE,
   MIN_BORDER_SCALE,
@@ -185,26 +186,51 @@ function getSourceSize(source: CanvasImageSource): { w: number; h: number } {
   throw new Error("Unsupported image source");
 }
 
-/** Center-crop to 1:1 */
-export function cropToSquare(image: HTMLImageElement): HTMLCanvasElement {
-  const size = Math.min(image.naturalWidth, image.naturalHeight);
-  const sx = Math.round((image.naturalWidth - size) / 2);
-  const sy = Math.round((image.naturalHeight - size) / 2);
+/**
+ * Center-crop to a target width:height aspect ratio.
+ * Pass a single number (w/h), or a pair via aspectW/aspectH.
+ */
+export function cropToAspect(
+  image: HTMLImageElement,
+  aspectW: number,
+  aspectH = 1,
+): HTMLCanvasElement {
+  const srcW = image.naturalWidth;
+  const srcH = image.naturalHeight;
+  const targetAspect = aspectW / aspectH;
+
+  const srcAspect = srcW / srcH;
+  let cropW: number;
+  let cropH: number;
+  if (srcAspect > targetAspect) {
+    cropH = srcH;
+    cropW = Math.round(srcH * targetAspect);
+  } else {
+    cropW = srcW;
+    cropH = Math.round(srcW / targetAspect);
+  }
+  const sx = Math.round((srcW - cropW) / 2);
+  const sy = Math.round((srcH - cropH) / 2);
+
   const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
+  canvas.width = cropW;
+  canvas.height = cropH;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Could not get canvas context");
-  ctx.drawImage(image, sx, sy, size, size, 0, 0, size, size);
+  ctx.drawImage(image, sx, sy, cropW, cropH, 0, 0, cropW, cropH);
   return canvas;
 }
 
-function prepareSource(
-  image: HTMLImageElement,
-  aspectPreset: AspectPreset,
-): CanvasImageSource {
-  if (aspectPreset === "square") return cropToSquare(image);
-  return image;
+/** Center-crop to 1:1 */
+export function cropToSquare(image: HTMLImageElement): HTMLCanvasElement {
+  return cropToAspect(image, 1, 1);
+}
+
+/** Outer L-size aspect (w/h), matching source orientation. */
+export function lSizeOuterAspect(srcW: number, srcH: number): number {
+  return srcW > srcH
+    ? L_SIZE_ASPECT.h / L_SIZE_ASPECT.w
+    : L_SIZE_ASPECT.w / L_SIZE_ASPECT.h;
 }
 
 function computeTextMetrics(
@@ -221,6 +247,113 @@ function computeTextMetrics(
     titleSize * (template === "minimal" ? 1.1 : 1.35),
   );
   return { titleSize, specsSize, lineGap, captionPadding };
+}
+
+type MarginInputs = {
+  imgW: number;
+  imgH: number;
+  borderScale: number;
+  template: FrameTemplate;
+  textScale: number;
+  totalTextHeight: number;
+};
+
+function computeFrameMargins({
+  imgW,
+  imgH,
+  borderScale,
+  template,
+  textScale,
+  totalTextHeight,
+}: MarginInputs) {
+  const { captionPadding } = computeTextMetrics(imgW, textScale, template);
+
+  let marginX = Math.round(imgW * BASE_MARGIN_X_RATIO * borderScale);
+  let marginTop = Math.round(imgH * BASE_MARGIN_TOP_RATIO * borderScale);
+  let marginBottom =
+    totalTextHeight > 0
+      ? totalTextHeight + captionPadding * 2
+      : Math.round(imgH * 0.12 * borderScale);
+
+  if (template === "film") {
+    marginX = Math.round(imgW * 0.07 * borderScale);
+    const bar = Math.max(
+      Math.round(imgH * 0.08 * borderScale),
+      totalTextHeight > 0
+        ? totalTextHeight + captionPadding * 2
+        : Math.round(imgH * 0.1 * borderScale),
+    );
+    marginTop = bar;
+    marginBottom = bar;
+  }
+
+  if (template === "minimal") {
+    marginX = Math.round(imgW * 0.035 * borderScale);
+    marginTop = Math.round(imgH * 0.035 * borderScale);
+  }
+
+  return { marginX, marginTop, marginBottom, captionPadding };
+}
+
+/**
+ * Find the photo (inner) aspect ratio such that, after frame margins,
+ * the outer canvas matches targetOuterAspect (w/h).
+ */
+function photoAspectForOuterL(
+  targetOuterAspect: number,
+  borderScale: number,
+  template: FrameTemplate,
+  textScale: number,
+  textHeightAt: (imgW: number) => number,
+): number {
+  const refW = 1000;
+  let lo = 0.25;
+  let hi = 4;
+  for (let i = 0; i < 40; i++) {
+    const mid = (lo + hi) / 2;
+    const imgH = refW / mid;
+    const totalTextHeight = textHeightAt(refW);
+    const { marginX, marginTop, marginBottom } = computeFrameMargins({
+      imgW: refW,
+      imgH,
+      borderScale,
+      template,
+      textScale,
+      totalTextHeight,
+    });
+    const outer =
+      (refW + marginX * 2) / (imgH + marginTop + marginBottom);
+    if (outer > targetOuterAspect) hi = mid;
+    else lo = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+function totalTextHeightFor(
+  imgW: number,
+  textScale: number,
+  template: FrameTemplate,
+  showTitle: boolean,
+  hasSpecsLine: boolean,
+  hasSignature: boolean,
+) {
+  const { titleSize, specsSize, lineGap } = computeTextMetrics(
+    imgW,
+    textScale,
+    template,
+  );
+  const signatureSize = Math.max(10, Math.round(titleSize * 0.72));
+  const signatureGap = hasSignature ? signatureSize * 0.75 : 0;
+  const titleBlock = showTitle ? titleSize : 0;
+  const specsBlock = hasSpecsLine ? specsSize : 0;
+  const signatureBlock = hasSignature ? signatureSize : 0;
+  return (
+    titleBlock +
+    (showTitle && hasSpecsLine ? lineGap : 0) +
+    specsBlock +
+    (hasSignature && (showTitle || hasSpecsLine) ? signatureGap : 0) +
+    signatureBlock
+  );
 }
 
 function drawFilmSprockets(
@@ -402,23 +535,12 @@ export async function renderPolaroidFrame(
   const signature = options.signature?.trim() ?? "";
 
   const colors = FRAME_COLORS[frameColor];
-  const source = prepareSource(image, aspectPreset);
-  const { w: imgW, h: imgH } = getSourceSize(source);
 
   const cameraName = getCameraDisplayName(exif);
   const make = exif.make.trim();
   const specsRaw = showSpecs ? buildSpecsLine(exif) : "";
   // Minimal folds specs into the title line
   const specsForSecondLine = template === "minimal" ? "" : specsRaw;
-
-  const { titleSize, specsSize, lineGap, captionPadding } = computeTextMetrics(
-    imgW,
-    textScale,
-    template,
-  );
-
-  const signatureSize = Math.max(10, Math.round(titleSize * 0.72));
-  const signatureGap = signature ? signatureSize * 0.75 : 0;
 
   const titleRuns = buildTitleRuns(cameraName, make, colors, {
     template,
@@ -429,43 +551,86 @@ export async function renderPolaroidFrame(
   });
 
   const showTitle = titleRuns.length > 0;
-  const titleBlock = showTitle ? titleSize : 0;
-  const specsBlock = specsForSecondLine ? specsSize : 0;
-  const signatureBlock = signature ? signatureSize : 0;
-  const totalTextHeight =
-    titleBlock +
-    (showTitle && specsForSecondLine ? lineGap : 0) +
-    specsBlock +
-    (signature && (showTitle || specsForSecondLine) ? signatureGap : 0) +
-    signatureBlock;
+  const hasSpecsLine = Boolean(specsForSecondLine);
+  const hasSignature = Boolean(signature);
 
-  let marginX = Math.round(imgW * BASE_MARGIN_X_RATIO * borderScale);
-  let marginTop = Math.round(imgH * BASE_MARGIN_TOP_RATIO * borderScale);
-  let marginBottom =
-    totalTextHeight > 0
-      ? totalTextHeight + captionPadding * 2
-      : Math.round(imgH * 0.12 * borderScale);
-
-  if (template === "film") {
-    // Equal side rails (wider for sprockets), matching top/bottom bars
-    marginX = Math.round(imgW * 0.07 * borderScale);
-    const bar = Math.max(
-      Math.round(imgH * 0.08 * borderScale),
-      totalTextHeight > 0
-        ? totalTextHeight + captionPadding * 2
-        : Math.round(imgH * 0.1 * borderScale),
+  const textHeightAt = (w: number) =>
+    totalTextHeightFor(
+      w,
+      textScale,
+      template,
+      showTitle,
+      hasSpecsLine,
+      hasSignature,
     );
-    marginTop = bar;
-    marginBottom = bar;
+
+  let source: CanvasImageSource;
+  if (aspectPreset === "square") {
+    source = cropToSquare(image);
+  } else if (aspectPreset === "l") {
+    const outerAspect = lSizeOuterAspect(
+      image.naturalWidth,
+      image.naturalHeight,
+    );
+    const photoAspect = photoAspectForOuterL(
+      outerAspect,
+      borderScale,
+      template,
+      textScale,
+      textHeightAt,
+    );
+    source = cropToAspect(image, photoAspect, 1);
+  } else {
+    source = image;
   }
 
-  if (template === "minimal") {
-    marginX = Math.round(imgW * 0.035 * borderScale);
-    marginTop = Math.round(imgH * 0.035 * borderScale);
-  }
+  let { w: imgW, h: imgH } = getSourceSize(source);
 
-  const canvasW = imgW + marginX * 2;
-  const canvasH = imgH + marginTop + marginBottom;
+  let totalTextHeight = textHeightAt(imgW);
+  let { marginX, marginTop, marginBottom, captionPadding } =
+    computeFrameMargins({
+      imgW,
+      imgH,
+      borderScale,
+      template,
+      textScale,
+      totalTextHeight,
+    });
+
+  const { titleSize, specsSize, lineGap } = computeTextMetrics(
+    imgW,
+    textScale,
+    template,
+  );
+  const signatureSize = Math.max(10, Math.round(titleSize * 0.72));
+  const signatureGap = hasSignature ? signatureSize * 0.75 : 0;
+
+  let canvasW = imgW + marginX * 2;
+  let canvasH = imgH + marginTop + marginBottom;
+
+  // Snap outer canvas to exact L-size aspect (margins included)
+  if (aspectPreset === "l") {
+    const outerAspect = lSizeOuterAspect(
+      image.naturalWidth,
+      image.naturalHeight,
+    );
+    const idealH = Math.round(canvasW / outerAspect);
+    const delta = idealH - canvasH;
+    if (delta !== 0) {
+      if (template === "film") {
+        const half = Math.trunc(delta / 2);
+        marginTop = Math.max(0, marginTop + half);
+        marginBottom = Math.max(0, marginBottom + (delta - half));
+      } else {
+        marginBottom = Math.max(0, marginBottom + delta);
+      }
+      canvasH = imgH + marginTop + marginBottom;
+      if (canvasH !== idealH) {
+        marginTop = Math.max(0, marginTop + (idealH - canvasH));
+        canvasH = imgH + marginTop + marginBottom;
+      }
+    }
+  }
 
   // Cap DPR / size — iPhone Safari rejects oversized canvases
   const dpr = Math.min(window.devicePixelRatio || 1, 2);

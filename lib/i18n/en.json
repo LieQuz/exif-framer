@@ -23,6 +23,7 @@
   "aspectPreset": "Aspect",
   "aspect_original": "Original",
   "aspect_square": "1:1",
+  "aspect_l": "L (full)",
   "textSize": "Text size",
   "textSizeSmall": "S",
   "textSizeLarge": "L",
