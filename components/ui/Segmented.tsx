@@ -41,7 +41,7 @@ export function Segmented<T extends string>({
             type="button"
             aria-pressed={active}
             onClick={() => onChange(option.value)}
-            className={`min-h-11 rounded-lg px-2 text-sm font-medium leading-tight transition-colors ${
+            className={`min-h-11 rounded-lg px-1 text-xs font-medium leading-tight transition-colors sm:px-2 sm:text-sm ${
               active
                 ? "bg-primary text-surface-raised shadow-soft"
                 : "text-ink-muted hover:bg-secondary/60 hover:text-ink"

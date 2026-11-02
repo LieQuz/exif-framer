@@ -187,6 +187,35 @@ button:not(:disabled),
     linear-gradient(145deg, #f5efe9 0%, #efe6dd 100%);
 }
 
+@media (max-height: 520px) and (max-width: 1023px) {
+  .preview-stage {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .preview-meta {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .batch-strip {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .mobile-action-bar {
+    padding-top: 0.5rem;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;

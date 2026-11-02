@@ -70,7 +70,7 @@ export function Tabs<T extends string>({
             tabIndex={active ? 0 : -1}
             onClick={() => onChange(item.id)}
             onKeyDown={(event) => handleKeyDown(event, index)}
-            className={`min-h-11 rounded-lg px-1.5 text-sm font-medium transition-colors ${
+            className={`min-h-11 rounded-lg px-1 text-xs font-medium transition-colors sm:px-1.5 sm:text-sm ${
               active
                 ? "bg-primary text-surface-raised shadow-soft"
                 : "text-ink-muted hover:bg-secondary/60 hover:text-ink"

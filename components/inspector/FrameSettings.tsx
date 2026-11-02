@@ -112,7 +112,7 @@ export function FrameSettings({ settings, onChange }: FrameSettingsProps) {
                 type="button"
                 aria-pressed={active}
                 onClick={() => patch({ frameColor: color.id })}
-                className={`group flex min-h-20 flex-col items-center justify-center gap-2 rounded-xl border p-3 transition-all ${
+                className={`group flex min-h-20 flex-col items-center justify-center gap-2 rounded-xl border p-2 transition-all sm:p-3 ${
                   active
                     ? "border-primary bg-secondary/40"
                     : "border-line bg-surface-raised hover:border-primary/30 hover:bg-secondary/20"

@@ -23,7 +23,7 @@ export function BatchStrip({
   const { t } = useI18n();
 
   return (
-    <div className="flex shrink-0 items-center gap-3 border-t border-line/80 bg-surface-sunken/70 px-4 py-3 sm:px-6">
+    <div className="batch-strip flex shrink-0 items-center gap-3 border-t border-line/80 bg-surface-sunken/70 px-4 py-3 sm:px-6">
       <span className="hidden shrink-0 font-mono text-xs uppercase tracking-[0.14em] text-ink-muted lg:inline">
         {t("batchList")}
       </span>

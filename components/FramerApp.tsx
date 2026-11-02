@@ -308,8 +308,8 @@ export function FramerApp() {
             tabIndex={-1}
             className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-12 pt-8 focus:outline-none sm:px-6 sm:pb-16 sm:pt-14 lg:px-8 lg:pb-24 lg:pt-20"
           >
-            <div className="grid flex-1 items-start gap-8 sm:gap-12 lg:grid-cols-12 lg:items-center lg:gap-14">
-              <div className="lg:col-span-5">
+            <div className="grid flex-1 items-start gap-8 sm:gap-12 md:grid-cols-12 md:items-start md:gap-8 lg:items-center lg:gap-14">
+              <div className="md:col-span-5">
                 <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-raised/90 px-3 py-1.5 font-mono text-xs uppercase tracking-[0.14em] text-ink-muted shadow-sm backdrop-blur">
                   <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                   {t("studioLabel")}
@@ -328,14 +328,14 @@ export function FramerApp() {
                   {t("landingBody")}
                 </p>
 
-                <div className="mt-10 hidden lg:block">
+                <div className="mt-10 hidden md:block">
                   <LandingSteps />
                 </div>
 
-                <PrivacyNote className="mt-8 hidden lg:flex" />
+                <PrivacyNote className="mt-8 hidden md:flex" />
               </div>
 
-              <div className="lg:col-span-7">
+              <div className="md:col-span-7">
                 <DropZone
                   onFilesSelect={handleFilesSelect}
                   disabled={isLoading}
@@ -358,7 +358,7 @@ export function FramerApp() {
                   </p>
                 )}
 
-                <div className="mt-8 lg:hidden">
+                <div className="mt-8 md:hidden">
                   <LandingSteps />
                   <PrivacyNote className="mt-6" />
                 </div>
@@ -380,9 +380,9 @@ export function FramerApp() {
       )}
 
       {editing && (
-        <div className="flex h-dvh flex-col overflow-hidden bg-surface pt-[env(safe-area-inset-top)] md:px-4 md:pb-4">
+        <div className="flex h-dvh flex-col overflow-hidden bg-surface pt-[env(safe-area-inset-top)] lg:px-4 lg:pb-4">
           <div className="mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col overflow-hidden">
-            <div className="px-4 sm:px-6 md:px-0">
+            <div className="px-4 sm:px-6 lg:px-0">
               <Header compact />
             </div>
 
@@ -391,8 +391,8 @@ export function FramerApp() {
               tabIndex={-1}
               className="flex min-h-0 flex-1 flex-col overflow-hidden focus:outline-none"
             >
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-surface-sunken md:flex-row md:rounded-[24px] md:border md:border-line md:bg-surface-raised md:shadow-panel">
-                <section className="flex min-h-0 min-w-0 flex-1 flex-col md:rounded-l-[24px]">
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-surface-sunken lg:flex-row lg:rounded-[24px] lg:border lg:border-line lg:bg-surface-raised lg:shadow-panel">
+                <section className="flex min-h-0 min-w-0 flex-1 flex-col lg:rounded-l-[24px]">
                   <div className="relative min-h-0 flex-1 basis-0">
                     <Preview
                       canvas={activeItem ? canvas : null}
@@ -418,7 +418,7 @@ export function FramerApp() {
                     onAddFiles={(files) => void handleFilesSelect(files)}
                   />
 
-                  <div className="flex shrink-0 items-center gap-2 border-t border-line/80 bg-surface-raised px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden">
+                  <div className="mobile-action-bar flex shrink-0 items-center gap-2 border-t border-line/80 bg-surface-raised px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
                     <button
                       type="button"
                       onClick={() => setSheetOpen(true)}
@@ -441,7 +441,7 @@ export function FramerApp() {
                   </div>
                 </section>
 
-                <aside className="hidden h-full w-[380px] shrink-0 flex-col border-l border-line/80 md:flex xl:w-[420px]">
+                <aside className="hidden h-full w-[380px] shrink-0 flex-col border-l border-line/80 lg:flex xl:w-[420px]">
                   <PropertiesPanel {...panelProps} variant="sidebar" />
                 </aside>
               </div>

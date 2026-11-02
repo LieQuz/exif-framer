@@ -48,9 +48,9 @@ export function Preview({
   if (!canvas && !isLoading) return null;
 
   return (
-    <div className="preview-backdrop fade-in relative flex h-full w-full items-center justify-center overflow-hidden px-4 pb-5 pt-16 sm:px-8 sm:pb-8 md:px-10 md:pb-10">
+    <div className="preview-stage preview-backdrop fade-in relative flex h-full w-full items-center justify-center overflow-hidden px-4 pb-5 pt-16 sm:px-8 sm:pb-8 md:px-10 md:pb-10">
       {title && (
-        <div className="absolute inset-x-4 top-4 z-10 flex items-center justify-between gap-3">
+        <div className="preview-meta absolute inset-x-4 top-4 z-10 flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2 rounded-full border border-line bg-surface-raised/90 px-3 py-2 shadow-sm backdrop-blur">
             <span
               aria-hidden="true"

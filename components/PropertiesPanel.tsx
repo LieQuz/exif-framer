@@ -71,7 +71,7 @@ export function PropertiesPanel({
   return (
     <div
       className={`flex flex-col bg-surface-raised ${
-        isSheet ? "max-h-[min(88dvh,760px)]" : "h-full"
+        isSheet ? "h-[min(88dvh,760px)]" : "h-full"
       }`}
     >
       <div className="relative flex shrink-0 items-center justify-between gap-3 border-b border-line/80 px-4 pb-3 pt-4">
@@ -197,7 +197,7 @@ export function MobileSheet({ open, onClose, children }: MobileSheetProps) {
 
   useEffect(() => {
     if (!open) return;
-    const mq = window.matchMedia("(min-width: 768px)");
+    const mq = window.matchMedia("(min-width: 1024px)");
     const closeOnDesktop = () => {
       if (mq.matches) onClose();
     };
@@ -254,7 +254,7 @@ export function MobileSheet({ open, onClose, children }: MobileSheetProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 md:hidden">
+    <div className="fixed inset-0 z-50 lg:hidden">
       <button
         type="button"
         className="absolute inset-0 bg-ink/25 backdrop-blur-[2px]"

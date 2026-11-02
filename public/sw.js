@@ -6,7 +6,7 @@
  * (they are immutable), and other same-origin assets use stale-while-revalidate.
  * RSC/prefetch requests are never cached because they are not documents.
  */
-const CACHE = "exif-framer-v8";
+const CACHE = "exif-framer-v9";
 const OFFLINE_URL = "/offline.html";
 const PRECACHE = [
   "/",

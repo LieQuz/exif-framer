@@ -13,9 +13,7 @@ export function Header({ compact = false, className = "" }: HeaderProps) {
 
   return (
     <header
-      className={`flex items-center justify-between gap-3 border-b border-line/70 ${
-        compact ? "py-2" : "py-4"
-      } ${className}`}
+      className={`flex items-center justify-between gap-3 border-b border-line/70 py-2 ${className}`}
     >
       <div className="flex min-w-0 items-center gap-3">
         <span
