@@ -442,14 +442,14 @@ export function FramerApp() {
                 </section>
 
                 <aside className="hidden h-full w-[380px] shrink-0 flex-col border-l border-line/80 lg:flex xl:w-[420px]">
-                  <PropertiesPanel {...panelProps} variant="sidebar" />
+                  <PropertiesPanel {...panelProps} />
                 </aside>
               </div>
             </main>
           </div>
 
           <MobileSheet open={sheetOpen} onClose={closeSheet}>
-            <PropertiesPanel {...panelProps} variant="sheet" />
+            <PropertiesPanel {...panelProps} onClose={closeSheet} />
           </MobileSheet>
         </div>
       )}

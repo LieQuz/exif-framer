@@ -6,6 +6,7 @@ import { ExifEditor } from "@/components/ExifEditor";
 import { ExportSettings } from "@/components/inspector/ExportSettings";
 import { FrameSettings } from "@/components/inspector/FrameSettings";
 import { TextSettings } from "@/components/inspector/TextSettings";
+import { CloseIcon } from "@/components/ui/icons";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import { hasExifData, type ExifData } from "@/lib/exif";
@@ -27,7 +28,7 @@ type PropertiesPanelProps = {
   exportLabel?: string;
   showBatchDownload: boolean;
   downloadOneLabel: string;
-  variant?: "sidebar" | "sheet";
+  onClose?: () => void;
 };
 
 export function PropertiesPanel({
@@ -43,10 +44,9 @@ export function PropertiesPanel({
   exportLabel,
   showBatchDownload,
   downloadOneLabel,
-  variant = "sidebar",
+  onClose,
 }: PropertiesPanelProps) {
   const { t } = useI18n();
-  const isSheet = variant === "sheet";
   const [tab, setTab] = useState<SettingsTab>("frame");
   const idPrefix = useId();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -69,24 +69,29 @@ export function PropertiesPanel({
   }`;
 
   return (
-    <div
-      className={`flex flex-col bg-surface-raised ${
-        isSheet ? "h-[min(88dvh,760px)]" : "h-full"
-      }`}
-    >
+    <div className="flex h-full flex-col bg-surface-raised">
       <div className="relative flex shrink-0 items-center justify-between gap-3 border-b border-line/80 px-4 pb-3 pt-4">
-        {isSheet && (
-          <div className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-line" />
-        )}
         <SectionLabel>{t("properties")}</SectionLabel>
-        <button
-          type="button"
-          onClick={onReset}
-          aria-label={t("changeImage")}
-          className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-medium text-ink-muted transition-colors hover:bg-secondary/60 hover:text-ink"
-        >
-          {t("changeImage")}
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={onReset}
+            aria-label={t("changeImage")}
+            className="inline-flex min-h-11 items-center rounded-full px-2.5 text-xs font-medium text-ink-muted transition-colors hover:bg-secondary/60 hover:text-ink sm:px-3"
+          >
+            {t("changeImage")}
+          </button>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={t("close")}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-secondary/60 hover:text-ink"
+            >
+              <CloseIcon className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="shrink-0 px-4 pt-3">
@@ -254,20 +259,14 @@ export function MobileSheet({ open, onClose, children }: MobileSheetProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 lg:hidden">
-      <button
-        type="button"
-        className="absolute inset-0 bg-ink/25 backdrop-blur-[2px]"
-        aria-label={t("close")}
-        onClick={onClose}
-      />
+    <div className="fixed inset-0 z-50 flex flex-col bg-surface-raised pt-[env(safe-area-inset-top)] lg:hidden">
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-label={t("properties")}
         tabIndex={-1}
-        className="sheet-enter shadow-sheet absolute inset-x-0 bottom-0 overflow-hidden rounded-t-[28px] border border-line bg-surface-raised outline-none"
+        className="fade-in flex h-full min-h-0 flex-col bg-surface-raised outline-none"
       >
         {children}
       </div>
