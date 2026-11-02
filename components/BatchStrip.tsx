@@ -1,5 +1,6 @@
 "use client";
 
+import { PlusIcon } from "@/components/ui/icons";
 import type { BatchItem } from "@/lib/batch";
 import { snapshotFiles } from "@/lib/files";
 import { useI18n } from "@/lib/i18n/context";
@@ -22,35 +23,40 @@ export function BatchStrip({
   const { t } = useI18n();
 
   return (
-    <div className="flex shrink-0 items-center gap-2 border-t border-stone-200/80 bg-[#F3F0EB] px-3 py-2 sm:gap-3 sm:px-6 sm:py-3">
-      <div className="relative h-11 w-11 shrink-0 sm:h-14 sm:w-14">
+    <div className="flex shrink-0 items-center gap-3 border-t border-line/80 bg-surface-sunken/70 px-4 py-3 sm:px-6">
+      <span className="hidden shrink-0 font-mono text-xs uppercase tracking-[0.14em] text-ink-muted lg:inline">
+        {t("batchList")}
+      </span>
+
+      <div className="group relative h-11 w-11 shrink-0 rounded-xl focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-surface-sunken sm:h-14 sm:w-14">
         <input
           type="file"
           accept="image/*"
           multiple
           aria-label={t("batchAddMore")}
           title={t("batchAddMore")}
-          onChange={(e) => {
-            const list = e.target.files;
+          onChange={(event) => {
+            const list = event.target.files;
             void (async () => {
               if (!list || list.length === 0) return;
               try {
                 const copies = await snapshotFiles(list);
-                e.target.value = "";
+                event.target.value = "";
                 if (copies.length) onAddFiles(copies);
               } catch {
-                e.target.value = "";
+                event.target.value = "";
               }
             })();
           }}
           className="absolute inset-0 z-10 m-0 h-full w-full cursor-pointer opacity-0"
           style={{ fontSize: 16 }}
         />
-        <div className="pointer-events-none flex h-full w-full items-center justify-center rounded-md border border-dashed border-stone-300 text-lg text-stone-400">
-          +
+        <div className="pointer-events-none flex h-full w-full items-center justify-center rounded-xl border border-dashed border-control-border bg-surface-raised/70 text-primary transition-colors group-hover:border-primary group-hover:bg-surface-raised">
+          <PlusIcon className="h-4 w-4" />
         </div>
       </div>
-      <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+
+      <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item) => {
           const active = item.id === activeId;
           return (
@@ -58,10 +64,11 @@ export function BatchStrip({
               <button
                 type="button"
                 onClick={() => onSelect(item.id)}
-                className={`block h-11 w-11 overflow-hidden rounded-md border-2 transition-colors sm:h-14 sm:w-14 ${
+                aria-current={active ? "true" : undefined}
+                className={`block h-11 w-11 overflow-hidden rounded-xl border-2 transition-all sm:h-14 sm:w-14 ${
                   active
-                    ? "border-stone-800"
-                    : "border-transparent opacity-70 hover:opacity-100"
+                    ? "border-primary shadow-sm"
+                    : "border-transparent opacity-65 hover:opacity-100"
                 }`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -74,7 +81,7 @@ export function BatchStrip({
               <button
                 type="button"
                 onClick={() => onRemove(item.id)}
-                className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-stone-800 text-[10px] text-white"
+                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-surface-raised shadow-sm ring-2 ring-surface-raised before:absolute before:-inset-3 before:content-[''] transition-colors hover:bg-primary-hover"
                 aria-label={t("batchRemove")}
               >
                 ×
@@ -83,7 +90,11 @@ export function BatchStrip({
           );
         })}
       </div>
-      <span className="hidden shrink-0 text-xs text-stone-400 sm:inline">
+
+      <span
+        title={t("batchList")}
+        className="shrink-0 rounded-full bg-secondary/80 px-2.5 py-1 font-mono text-xs tabular-nums text-ink-muted"
+      >
         {items.length}
       </span>
     </div>

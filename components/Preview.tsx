@@ -2,12 +2,15 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { applyExportEffects } from "@/lib/frame";
+import { useI18n } from "@/lib/i18n/context";
 
 type PreviewProps = {
   canvas: HTMLCanvasElement | null;
   isLoading?: boolean;
   cornerRadius?: number;
   previewShadow?: boolean;
+  title?: string;
+  meta?: string;
 };
 
 export function Preview({
@@ -15,7 +18,10 @@ export function Preview({
   isLoading,
   cornerRadius = 0,
   previewShadow = true,
+  title,
+  meta,
 }: PreviewProps) {
+  const { t } = useI18n();
   const displayRef = useRef<HTMLCanvasElement>(null);
 
   const displayCanvas = useMemo(() => {
@@ -39,29 +45,44 @@ export function Preview({
     ctx.drawImage(displayCanvas, 0, 0);
   }, [displayCanvas]);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-300 border-t-stone-700" />
-      </div>
-    );
-  }
-
-  if (!canvas) return null;
+  if (!canvas && !isLoading) return null;
 
   return (
-    <div className="fade-in flex h-full w-full items-center justify-center px-4 py-4 sm:px-8 sm:py-6 md:px-14 md:py-10">
-      <canvas
-        ref={displayRef}
-        className="max-h-full max-w-full bg-transparent object-contain"
-        style={{
-          width: "auto",
-          height: "auto",
-          filter: previewShadow
-            ? "drop-shadow(0 12px 28px rgba(0, 0, 0, 0.2))"
-            : "none",
-        }}
-      />
+    <div className="preview-backdrop fade-in relative flex h-full w-full items-center justify-center overflow-hidden px-4 pb-5 pt-16 sm:px-8 sm:pb-8 md:px-10 md:pb-10">
+      {title && (
+        <div className="absolute inset-x-4 top-4 z-10 flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2 rounded-full border border-line bg-surface-raised/90 px-3 py-2 shadow-sm backdrop-blur">
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+            />
+            <h1 className="truncate text-sm font-medium text-ink">{title}</h1>
+          </div>
+          {meta && (
+            <span className="hidden shrink-0 font-mono text-xs text-ink-muted sm:inline">
+              {meta}
+            </span>
+          )}
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="flex h-full w-full items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-line border-t-primary" />
+        </div>
+      ) : (
+        <canvas
+          ref={displayRef}
+          role="img"
+          aria-label={`${title ? `${title} — ` : ""}${t("previewLabel")}`}
+          className="h-full w-full object-contain"
+          style={{
+            filter: previewShadow
+              ? "drop-shadow(0 26px 44px rgba(62, 43, 30, 0.24))"
+              : "none",
+          }}
+        />
+      )}
     </div>
   );
 }

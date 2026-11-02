@@ -584,18 +584,19 @@ export async function renderPolaroidFrame(
     source = image;
   }
 
-  let { w: imgW, h: imgH } = getSourceSize(source);
+  const { w: imgW, h: imgH } = getSourceSize(source);
 
-  let totalTextHeight = textHeightAt(imgW);
-  let { marginX, marginTop, marginBottom, captionPadding } =
-    computeFrameMargins({
-      imgW,
-      imgH,
-      borderScale,
-      template,
-      textScale,
-      totalTextHeight,
-    });
+  const totalTextHeight = textHeightAt(imgW);
+  const frameMargins = computeFrameMargins({
+    imgW,
+    imgH,
+    borderScale,
+    template,
+    textScale,
+    totalTextHeight,
+  });
+  const { marginX, captionPadding } = frameMargins;
+  let { marginTop, marginBottom } = frameMargins;
 
   const { titleSize, specsSize, lineGap } = computeTextMetrics(
     imgW,
@@ -605,7 +606,7 @@ export async function renderPolaroidFrame(
   const signatureSize = Math.max(10, Math.round(titleSize * 0.72));
   const signatureGap = hasSignature ? signatureSize * 0.75 : 0;
 
-  let canvasW = imgW + marginX * 2;
+  const canvasW = imgW + marginX * 2;
   let canvasH = imgH + marginTop + marginBottom;
 
   // Snap outer canvas to exact L-size aspect (margins included)

@@ -1,4 +1,5 @@
 import JSZip from "jszip";
+import { withTimeout } from "@/lib/async";
 import {
   applyExportEffects,
   canvasToBlob,
@@ -21,28 +22,20 @@ export type BatchItem = {
   filename: string;
 };
 
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const timer = window.setTimeout(() => reject(new Error("timeout")), ms);
-    promise.then(
-      (v) => {
-        window.clearTimeout(timer);
-        resolve(v);
-      },
-      (e) => {
-        window.clearTimeout(timer);
-        reject(e);
-      },
-    );
-  });
-}
-
 export async function createBatchItem(file: File): Promise<BatchItem> {
-  const image = await withTimeout(loadImageFromFile(file), 30000);
+  const image = await withTimeout(
+    (signal) => loadImageFromFile(file, signal),
+    30000,
+    "Image load",
+  );
   let exif = emptyExifData();
   try {
     // PNG eXIf / XMP can take longer than JPEG APP1 on large files
-    exif = await withTimeout(parseExifFromFile(file), 12000);
+    exif = await withTimeout(
+      (signal) => parseExifFromFile(file, signal),
+      12000,
+      "EXIF parse",
+    );
   } catch {
     exif = emptyExifData();
   }

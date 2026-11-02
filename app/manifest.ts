@@ -5,11 +5,11 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "EXIF Framer",
     short_name: "EXIF Framer",
     description:
-      "Add a polaroid-style EXIF frame to your photos. Processed entirely in your browser.",
+      "Turn EXIF into a polaroid-style photo frame. Warm, minimal, and processed entirely in your browser.",
     start_url: "/",
     display: "standalone",
-    background_color: "#FAF8F5",
-    theme_color: "#FAF8F5",
+    background_color: "#F9F7F5",
+    theme_color: "#F9F7F5",
     lang: "ja",
     icons: [
       {

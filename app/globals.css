@@ -1,26 +1,190 @@
 @import "tailwindcss";
 
 :root {
-  --background: #faf8f5;
-  --foreground: #3d3d3d;
-  --accent: #6b6b6b;
-  /* Apple system UI font (San Francisco on macOS / iOS) */
-  --font-system:
-    -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
-    "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color-scheme: light;
+
+  /* Cafe design tokens */
+  --cafe-surface: #f9f7f5;
+  --cafe-surface-raised: #fffdfb;
+  --cafe-surface-sunken: #f1eae3;
+  --cafe-secondary: #e9e3dd;
+  --cafe-primary: #5d4432;
+  --cafe-primary-hover: #4a3527;
+  --cafe-ink: #3e2b1e;
+  --cafe-ink-muted: #6b5b50;
+  --cafe-line: #e4dbd3;
+  --cafe-control-border: #9c8a7c;
+  --cafe-success: #16a34a;
+  --cafe-warning: #d97706;
+  --cafe-danger: #dc2626;
+  --cafe-font-fallback:
+    "Hiragino Sans", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  --cafe-mono-fallback:
+    "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-system);
+  --color-surface: var(--cafe-surface);
+  --color-surface-raised: var(--cafe-surface-raised);
+  --color-surface-sunken: var(--cafe-surface-sunken);
+  --color-secondary: var(--cafe-secondary);
+  --color-primary: var(--cafe-primary);
+  --color-primary-hover: var(--cafe-primary-hover);
+  --color-ink: var(--cafe-ink);
+  --color-ink-muted: var(--cafe-ink-muted);
+  --color-line: var(--cafe-line);
+  --color-control-border: var(--cafe-control-border);
+  --color-success: var(--cafe-success);
+  --color-warning: var(--cafe-warning);
+  --color-danger: var(--cafe-danger);
+  --font-sans: var(--font-poppins, var(--cafe-font-fallback));
+  --font-display: var(--font-poppins, var(--cafe-font-fallback));
+  --font-mono: var(--font-jetbrains, var(--cafe-mono-fallback));
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-system);
+  min-height: 100%;
+  background-color: var(--cafe-surface);
+  background-image:
+    radial-gradient(1100px 700px at 8% -10%, #f4ede6 0%, transparent 55%),
+    radial-gradient(900px 620px at 100% 108%, #efe5dc 0%, transparent 52%);
+  color: var(--cafe-ink);
+  font-family: var(--font-poppins, var(--cafe-font-fallback));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--cafe-primary);
+  color: var(--cafe-surface-raised);
+}
+
+:where(button, a, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--cafe-primary);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .section-label {
+    @apply block font-mono text-xs font-medium uppercase tracking-[0.14em] text-ink-muted;
+  }
+
+  .field {
+    @apply w-full rounded-xl border border-control-border bg-surface-raised px-4 py-3 text-base text-ink shadow-sm outline-none transition-colors placeholder:text-ink-muted;
+  }
+
+  .field:focus {
+    @apply border-primary ring-2 ring-primary/25;
+  }
+
+  .range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 44px;
+    background: transparent;
+    cursor: pointer;
+    accent-color: var(--cafe-primary);
+  }
+
+  .panel-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--cafe-secondary) transparent;
+  }
+
+  .panel-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .panel-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .panel-scroll::-webkit-scrollbar-thumb {
+    border: 2px solid var(--cafe-surface-raised);
+    border-radius: 9999px;
+    background: var(--cafe-secondary);
+  }
+}
+
+@utility shadow-soft {
+  box-shadow: 0 8px 24px -16px rgba(93, 68, 50, 0.35);
+}
+
+@utility shadow-card {
+  box-shadow: 0 24px 55px -34px rgba(93, 68, 50, 0.45);
+}
+
+@utility shadow-action {
+  box-shadow: 0 14px 30px -18px rgba(93, 68, 50, 0.8);
+}
+
+@utility shadow-panel {
+  box-shadow: 0 30px 80px -50px rgba(62, 43, 30, 0.55);
+}
+
+@utility shadow-sheet {
+  box-shadow: 0 -24px 60px -20px rgba(62, 43, 30, 0.45);
+}
+
+.range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--cafe-secondary);
+  box-shadow: inset 0 0 0 1px var(--cafe-control-border);
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  width: 18px;
+  margin-top: -6px;
+  border: 3px solid var(--cafe-surface-raised);
+  border-radius: 9999px;
+  background: var(--cafe-primary);
+  box-shadow:
+    0 0 0 1px rgba(93, 68, 50, 0.28),
+    0 2px 6px rgba(62, 43, 30, 0.18);
+}
+
+.range::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--cafe-secondary);
+  box-shadow: inset 0 0 0 1px var(--cafe-control-border);
+}
+
+.range::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border: 3px solid var(--cafe-surface-raised);
+  border-radius: 9999px;
+  background: var(--cafe-primary);
+  box-shadow:
+    0 0 0 1px rgba(93, 68, 50, 0.28),
+    0 2px 6px rgba(62, 43, 30, 0.18);
+}
+
+.preview-backdrop {
+  background:
+    radial-gradient(
+      ellipse at 50% 30%,
+      rgba(255, 253, 251, 0.95) 0%,
+      rgba(249, 247, 245, 0.35) 50%,
+      transparent 74%
+    ),
+    linear-gradient(145deg, #f5efe9 0%, #efe6dd 100%);
 }
 
 @keyframes fade-in {
@@ -48,4 +212,19 @@ body {
 .fade-in {
   /* Avoid `both` — Safari can leave newly mounted nodes stuck at opacity:0 */
   animation: fade-in 0.45s ease-out forwards;
+}
+
+.sheet-enter {
+  animation: slide-up 0.28s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .fade-in,
+  .sheet-enter {
+    animation: none;
+  }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { AlertIcon } from "@/components/ui/icons";
 import type { ExifData } from "@/lib/exif";
 import { useI18n } from "@/lib/i18n/context";
 
@@ -26,27 +27,36 @@ export function ExifEditor({
   const { t } = useI18n();
 
   return (
-    <div className="space-y-4">
+    <section className="space-y-5">
+      <p className="text-sm leading-6 text-ink-muted">{t("cameraHint")}</p>
+
       {showNoExifWarning && (
-        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          {t("noExif")}
+        <p
+          role="status"
+          className="flex gap-2 rounded-xl border border-warning/25 bg-warning/5 px-3 py-3 text-sm leading-6 text-ink"
+        >
+          <AlertIcon className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+          <span>{t("noExif")}</span>
         </p>
       )}
-      <div className="grid gap-3 sm:grid-cols-2">
+
+      <div className="grid gap-4">
         {fields.map(({ key, labelKey }) => (
           <label key={key} className="block">
-            <span className="mb-1 block text-xs font-medium uppercase tracking-wider text-stone-400">
-              {t(labelKey)}
-            </span>
+            <span className="section-label mb-2">{t(labelKey)}</span>
             <input
               type="text"
               value={data[key]}
-              onChange={(e) => onChange({ ...data, [key]: e.target.value })}
-              className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-800 outline-none transition-colors placeholder:text-stone-300 focus:border-stone-400"
+              onChange={(event) =>
+                onChange({ ...data, [key]: event.target.value })
+              }
+              autoComplete="off"
+              spellCheck={false}
+              className="field"
             />
           </label>
         ))}
       </div>
-    </div>
+    </section>
   );
 }

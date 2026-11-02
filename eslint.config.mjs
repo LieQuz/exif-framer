@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored, unmodified exifr UMD build (served to the EXIF worker).
+    "public/exifr.full.umd.js",
   ]),
 ]);
 

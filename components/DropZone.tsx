@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { CameraIcon, UploadIcon } from "@/components/ui/icons";
 import { snapshotFiles } from "@/lib/files";
 import { useI18n } from "@/lib/i18n/context";
 
@@ -15,12 +16,20 @@ type DropZoneProps = {
  */
 export function DropZone({ onFilesSelect, disabled }: DropZoneProps) {
   const { t } = useI18n();
+  const hintId = useId();
   const onFilesSelectRef = useRef(onFilesSelect);
   const [isDragging, setIsDragging] = useState(false);
   const [isReading, setIsReading] = useState(false);
 
-  onFilesSelectRef.current = onFilesSelect;
+  useEffect(() => {
+    onFilesSelectRef.current = onFilesSelect;
+  }, [onFilesSelect]);
+
   const busy = Boolean(disabled || isReading);
+  const formats = t("dropFormats")
+    .split("·")
+    .map((format) => format.trim())
+    .filter(Boolean);
 
   const handleList = async (
     list: FileList | File[] | null | undefined,
@@ -43,20 +52,19 @@ export function DropZone({ onFilesSelect, disabled }: DropZoneProps) {
 
   return (
     <div
-      className={`relative block overflow-hidden rounded-2xl border-2 border-dashed transition-all duration-300 ${
-        isDragging
-          ? "border-stone-400 bg-white shadow-lg"
-          : "border-stone-200 bg-white/60"
-      } ${busy ? "pointer-events-none opacity-50" : ""}`}
-      onDragOver={(e) => {
-        e.preventDefault();
+      aria-busy={isReading}
+      className={`group relative overflow-hidden rounded-[28px] border bg-surface-raised p-2 shadow-card transition-all duration-300 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-surface ${
+        isDragging ? "border-primary" : "border-line"
+      } ${busy ? "pointer-events-none opacity-60" : ""}`}
+      onDragOver={(event) => {
+        event.preventDefault();
         if (!busy) setIsDragging(true);
       }}
       onDragLeave={() => setIsDragging(false)}
-      onDrop={(e) => {
-        e.preventDefault();
+      onDrop={(event) => {
+        event.preventDefault();
         setIsDragging(false);
-        if (!busy) void handleList(e.dataTransfer.files);
+        if (!busy) void handleList(event.dataTransfer.files);
       }}
     >
       <input
@@ -64,48 +72,65 @@ export function DropZone({ onFilesSelect, disabled }: DropZoneProps) {
         accept="image/*"
         multiple
         disabled={busy}
-        onChange={(e) => {
-          void handleList(e.target.files, e.target);
+        onChange={(event) => {
+          void handleList(event.target.files, event.target);
         }}
         className="absolute inset-0 z-20 h-full w-full cursor-pointer opacity-0"
         style={{ fontSize: 16 }}
         aria-label={t("dropTitle")}
+        aria-describedby={hintId}
       />
 
-      <div className="pointer-events-none flex min-h-[240px] flex-col items-center justify-center px-6 py-12 sm:min-h-[320px] sm:px-8 sm:py-16">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-stone-100 sm:h-14 sm:w-14">
+      <div
+        className={`relative flex min-h-[320px] flex-col items-center justify-center rounded-[22px] border border-dashed px-6 pb-10 pt-14 text-center transition-colors sm:min-h-[380px] sm:px-10 ${
+          isDragging
+            ? "border-primary/50 bg-secondary/35"
+            : "border-control-border/60 bg-surface/60 group-hover:border-primary/40 group-hover:bg-secondary/20"
+        }`}
+      >
+        <span className="pointer-events-none absolute left-5 top-4 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-ink-muted">
+          <span className="text-primary">01</span>
+          <span className="h-px w-4 bg-control-border/60" />
+          <span>{t("stepUpload")}</span>
+        </span>
+
+        <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-secondary/70 text-primary ring-1 ring-line">
           {isReading ? (
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-700" />
+            <div className="h-7 w-7 animate-spin rounded-full border-2 border-line border-t-primary" />
           ) : (
-            <svg
-              className="h-5 w-5 text-stone-500 sm:h-6 sm:w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-              />
-            </svg>
+            <UploadIcon className="h-7 w-7" />
+          )}
+          {!isReading && (
+            <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-surface-raised shadow-sm">
+              <CameraIcon className="h-4 w-4" />
+            </span>
           )}
         </div>
-        <p className="text-center text-base font-medium text-stone-700">
+
+        <p className="mt-6 font-display text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
           {isReading ? t("loading") : t("dropTitle")}
         </p>
+
         {!isReading && (
           <>
-            <p className="mt-1 text-center text-sm text-stone-400">
-              {t("dropHint")}
-            </p>
-            <p className="mt-2 text-center text-xs text-stone-400">
-              {t("dropBatchHint")}
-            </p>
-            <p className="mt-4 text-center text-xs tracking-wide text-stone-400">
-              {t("dropFormats")}
-            </p>
+            <div id={hintId} className="mt-3 space-y-1">
+              <p className="text-base leading-7 text-ink-muted">
+                {t("dropHint")}
+              </p>
+              <p className="text-sm leading-6 text-ink-muted">
+                {t("dropBatchHint")}
+              </p>
+            </div>
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
+              {formats.map((format) => (
+                <span
+                  key={format}
+                  className="rounded-full border border-line bg-surface-raised px-3 py-1.5 font-mono text-xs tracking-[0.12em] text-ink-muted"
+                >
+                  {format}
+                </span>
+              ))}
+            </div>
           </>
         )}
       </div>

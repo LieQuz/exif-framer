@@ -10,7 +10,7 @@
 - 署名・透かし、文字サイズ・配置
 - PNG / JPEG ダウンロード、複数枚は ZIP
 - 設定と言語をブラウザに記憶
-- PWA（ホーム画面追加・オフライン）
+- PWA（ホーム画面追加・初回読み込み後はオフラインでも利用可）
 - 日本語 / 英語 UI 切り替え
 
 ## ローカル開発
@@ -45,6 +45,8 @@ npm start
 - [Tailwind CSS](https://tailwindcss.com/)
 - [exifr](https://github.com/MikeKovarik/exifr) — EXIF 解析
 - Canvas API — フレーム合成
+
+> `public/exifr.full.umd.js` は `exifr@7.1.3` の UMD ビルドを同梱したものです。exifr を更新する際は `node_modules/exifr/dist/full.umd.js` をコピーしてください。
 
 ## ライセンス
 

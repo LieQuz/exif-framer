@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#F9F7F5" />
+    <title>EXIF Framer — Offline</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic",
+          "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        min-height: 100dvh;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background:
+          radial-gradient(900px 600px at 10% 0%, #f4ede6 0%, transparent 60%),
+          radial-gradient(700px 500px at 100% 100%, #efe5dc 0%, transparent 55%),
+          #f9f7f5;
+        color: #3e2b1e;
+      }
+      main {
+        width: 100%;
+        max-width: 420px;
+        padding: 40px 28px 36px;
+        border: 1px solid #e4dbd3;
+        border-radius: 28px;
+        background: #fffdfb;
+        box-shadow: 0 28px 60px -40px rgba(62, 43, 30, 0.45);
+        text-align: center;
+      }
+      .mark {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 18px;
+        background: #5d4432;
+        color: #fffdfb;
+        box-shadow: 0 8px 20px -10px rgba(93, 68, 50, 0.8);
+      }
+      .eyebrow {
+        margin: 0 0 10px;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #6b5b50;
+      }
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      p {
+        margin: 12px 0 0;
+        font-size: 14px;
+        line-height: 1.75;
+        color: #6b5b50;
+      }
+      button {
+        margin-top: 26px;
+        padding: 13px 24px;
+        border: 0;
+        border-radius: 12px;
+        background: #5d4432;
+        color: #fffdfb;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 14px 30px -18px rgba(93, 68, 50, 0.8);
+        transition: background-color 0.2s ease;
+      }
+      button:hover {
+        background: #4a3527;
+      }
+      button:focus-visible {
+        outline: 2px solid rgba(93, 68, 50, 0.55);
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="8.5" />
+          <path d="M12 3.5 8.1 10.1M20.2 8.5h-7.4M17.8 19.5l-3.7-6.4M9.2 20l3.7-6.4M3.8 15.5h7.4M6.2 4.5l3.7 6.4" />
+        </svg>
+      </div>
+      <p class="eyebrow">EXIF Framer · Offline</p>
+      <h1>オフラインです</h1>
+      <p>
+        このページはまだ保存されていません。オンラインに戻って一度読み込むと、
+        次回からオフラインでも利用できます。
+      </p>
+      <p>This page isn’t cached yet. Reconnect once, then it will work offline.</p>
+      <button type="button" onclick="location.reload()">再読み込み / Retry</button>
+    </main>
+  </body>
+</html>
+

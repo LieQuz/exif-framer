@@ -1,40 +1,38 @@
 "use client";
 
+import { DownloadIcon } from "@/components/ui/icons";
 import { useI18n } from "@/lib/i18n/context";
 
 type DownloadButtonProps = {
   onClick: () => void;
   disabled?: boolean;
   label?: string;
+  variant?: "primary" | "secondary";
+  className?: string;
 };
 
 export function DownloadButton({
   onClick,
   disabled,
   label,
+  variant = "primary",
+  className = "",
 }: DownloadButtonProps) {
   const { t } = useI18n();
+
+  const variantClass =
+    variant === "secondary"
+      ? "border border-control-border bg-surface-raised text-ink hover:border-primary/40 hover:bg-secondary/40"
+      : "bg-primary text-surface-raised shadow-action hover:bg-primary-hover";
 
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-stone-800 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-40"
+      className={`inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${variantClass} ${className}`}
     >
-      <svg
-        className="h-4 w-4"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-        />
-      </svg>
+      <DownloadIcon className="h-4 w-4" />
       {label ?? t("download")}
     </button>
   );
